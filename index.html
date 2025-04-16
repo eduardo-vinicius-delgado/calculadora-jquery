@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: rgb(228, 108, 53);
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        .calculadora_container {
+            display: flex;
+            flex-direction: column;
+            margin: 3rem;
+            width: 17rem;
+            height: 22rem;
+            background-color: rgb(214, 214, 214);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        }
+
+        .display_numeros {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 0 1rem;
+            background-color: #FFF;
+            border: 1.5px solid #000;
+            height: 3rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .botoes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 0.75rem;
+            flex-grow: 1;
+        }
+
+        .buttonCalc.darker {
+            background-color: rgb(114, 113, 113);
+            color: #FFF;
+        }
+
+        .buttonCalc {
+            font-size: 1.5rem;
+            border: none;
+            background-color: #fff;
+            color: #000;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        }
+
+        .buttonCalc.equal {
+            grid-row: span 2;
+            height: 100%;
+        }
+
+        .buttonCalc.zero {
+            grid-column: span 2;
+            width: 100%;
+        }
+
+        .visor {
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculadora_container">
+        <div class="display_numeros">
+            <span id="visor" class="visor"></span>
+        </div>
+        <div class="botoes">
+            <button class="buttonCalc darker" id="clearAll">C</button>
+            <button class="buttonCalc darker" id="clearActualVisor">CE</button>
+            <button class="buttonCalc darker" id="operationBtn1">/</button>
+            <button class="buttonCalc darker" id="operationBtn2">*</button>
+            <button id="numButton7" class="buttonCalc">7</button>
+            <button id="numButton8" class="buttonCalc">8</button>
+            <button id="numButton9" class="buttonCalc">9</button>
+            <button class="buttonCalc darker" id="operationBtn3">-</button>
+            <button id="numButton4" class="buttonCalc">4</button>
+            <button id="numButton5" class="buttonCalc">5</button>
+            <button id="numButton6" class="buttonCalc">6</button>
+            <button class="buttonCalc darker" id="operationBtn4">+</button>
+            <button id="numButton1" class="buttonCalc">1</button>
+            <button id="numButton2" class="buttonCalc">2</button>
+            <button id="numButton3" class="buttonCalc">3</button>
+            <button class="buttonCalc equal darker" id="equalBtn">=</button>
+            <button class="buttonCalc zero" id="numButton">0</button>
+            <button id="numButtonDot" class="buttonCalc darker">.</button>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    let numeroVisorPrimeiro = '';
+    let numeroVisorSegundo = '';
+    let result = '';
+    let numButtons = $('[id^=numButton]');
+    let operationButtons = $('[id^=operationBtn]');
+    let activeNumVisor = 1;
+    let actualOperation = '';
+
+    function showActiveVisor() {
+        if (activeNumVisor === 1) {
+            $('#visor').text(numeroVisorPrimeiro);
+        } else {
+            $('#visor').text(numeroVisorSegundo);
+        }
+    }
+
+    $('#equalBtn').click(
+        function () {
+            let rawResult;
+            switch (actualOperation) {
+                case "divison":
+                    rawResult = Number(numeroVisorPrimeiro) / Number(numeroVisorSegundo);
+                    result = String(rawResult).substring(0, 20);
+                    break;
+                case 'multiply':
+                    rawResult = Number(numeroVisorPrimeiro) * Number(numeroVisorSegundo);
+                    result = String(rawResult).substring(0, 20);
+                    break;
+                case 'subtract':
+                    rawResult = Number(numeroVisorPrimeiro) - Number(numeroVisorSegundo);
+                    result = String(rawResult).substring(0, 20);
+                    break;
+                case 'add':
+                    rawResult = Number(numeroVisorPrimeiro) + Number(numeroVisorSegundo);
+                    result = String(rawResult).substring(0, 20);
+                    break;
+            }
+            actualOperation = '';
+            numeroVisorPrimeiro = result;
+            activeNumVisor = 2;
+            numeroVisorSegundo = '';
+            $('#visor').text(numeroVisorPrimeiro);
+        }
+    )
+
+    numButtons.click(
+        function (e) {
+            if (activeNumVisor === 1) {
+                if (numeroVisorPrimeiro.length < 20) {
+                    if (e.target.innerHTML === '.') {
+                        if (!numeroVisorPrimeiro.includes('.')) {
+                            numeroVisorPrimeiro += e.target.innerHTML;
+                            showActiveVisor();
+                        }
+                    } else {
+                        numeroVisorPrimeiro += e.target.innerHTML;
+                        showActiveVisor();
+                    }
+                }
+            } else {
+                if (numeroVisorSegundo.length < 20) {
+                    if (e.target.innerHTML === '.') {
+                        if (!numeroVisorSegundo.includes('.')) {
+                            numeroVisorSegundo += e.target.innerHTML;
+                            showActiveVisor();
+                        }
+                    } else {
+                        numeroVisorSegundo += e.target.innerHTML;
+                        showActiveVisor();
+                    }
+                }
+            }
+        }
+    );
+
+    $('#clearAll').click(
+        function () {
+            numeroVisorPrimeiro = '';
+            numeroVisorSegundo = '';
+            activeNumVisor = 1;
+            showActiveVisor();
+        }
+    );
+
+    $('#clearActualVisor').click(
+        function () {
+            if (activeNumVisor === 1) {
+                numeroVisorPrimeiro = '';
+            } else {
+                numeroVisorSegundo = '';
+            }
+            showActiveVisor();
+        }
+    );
+
+    operationButtons.click(
+        function (e) {
+            let operationText = e.target.innerHTML;
+            activeNumVisor = 2;
+
+            switch (operationText) {
+                case '/':
+                    actualOperation = 'divison';
+                    break;
+                case '*':
+                    actualOperation = 'multiply';
+                    break;
+                case '-':
+                    actualOperation = 'subtract';
+                    break;
+                case '+':
+                    actualOperation = 'add';
+                    break;
+            }
+            showActiveVisor();
+        }
+    );
+
+</script>
+
+</html>
